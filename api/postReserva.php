@@ -26,12 +26,6 @@ if (!empty($errores)) {
     exit;
 }
 
-if (!$input || empty($input['nombre_huesped']) || empty($input['email_huesped']) || empty($input['fecha_entrada'])) {
-    http_response_code(400);
-    echo json_encode(["error" => "Faltan datos obligatorios en la peticion JSON"]);
-    exit;
-}
-
 try {
 
     $reserva = new Reserva();
