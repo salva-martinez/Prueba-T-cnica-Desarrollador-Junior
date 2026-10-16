@@ -26,6 +26,37 @@ if ($method !== 'GET') {
     exit('Método no permitido');
 }
 
+if (isset($_GET['id']) && !empty($_GET['id'])) {
+    $id = (int) $_GET['id'];
+}
+// Si no viene por GET, intentamos capturarlo por ruta limpia (/reservas/1)
+elseif (preg_match('#^/reservas/([0-9]+)$#', $path, $matches)) {
+    $id = (int) $matches[1];
+} else {
+    $id = null;
+}
+
+if ($id !== null) {
+    $reserva = ReservaDAO::select($id);
+
+    if (!$reserva) {
+        http_response_code(404);
+        echo $twig->render('reservas/show.html.twig', [
+            'reserva' => null,
+            'eventos' => [],
+        ]);
+        exit;
+    }
+
+    $eventos = ReservaEventoDAO::select($id);
+
+    echo $twig->render('reservas/show.html.twig', [
+        'reserva' => $reserva,
+        'eventos' => $eventos,
+    ]);
+    exit;
+}
+
 if ($path === '/' || $path === '/reservas') {
     $estado = $_GET['estado'] ?? null;
     $fechaInicio = $_GET['fecha_inicio'] ?? null;
@@ -47,28 +78,6 @@ if ($path === '/' || $path === '/reservas') {
             'fecha_fin' => $fechaFin,
             'nombre' => $nombre,
         ],
-    ]);
-    exit;
-}
-
-if (preg_match('#^/reservas/([0-9]+)$#', $path, $matches)) {
-    $id = (int) $matches[1];
-    $reserva = ReservaDAO::select($id);
-
-    if (!$reserva) {
-        http_response_code(404);
-        echo $twig->render('reservas/show.html.twig', [
-            'reserva' => null,
-            'eventos' => [],
-        ]);
-        exit;
-    }
-
-    $eventos = ReservaEventoDAO::select($id);
-
-    echo $twig->render('reservas/show.html.twig', [
-        'reserva' => $reserva,
-        'eventos' => $eventos,
     ]);
     exit;
 }

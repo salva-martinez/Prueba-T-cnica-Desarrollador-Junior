@@ -26,22 +26,20 @@ class ReservaEventoDAO
         return 0;
     }
 
-    public static function select($id): ?Reserva
+    public static function select($reservaId): array
     {
         $conn = DBConnection::connectDB();
         if (!is_null($conn)) {
             $stmt = $conn->prepare("SELECT reserva_id, 
                                            tipo,
-                                           descripcion
+                                           descripcion,
+                                           fecha_creacion
                                      FROM reserva_evento
-                                     WHERE id = :id");
-            $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Reserva');
-            $stmt->execute(['id' => $id]);
-            $reserva = $stmt->fetch();
-            if ($reserva) {
-                return $reserva;
-            }
+                                     WHERE reserva_id = :reserva_id");
+            $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'ReservaEvento');
+            $stmt->execute(['reserva_id' => $reservaId]);
+            return $stmt->fetchAll();
         }
-        return null;
+        return [];
     }
 }

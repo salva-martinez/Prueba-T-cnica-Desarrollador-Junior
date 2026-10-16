@@ -1,0 +1,26 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Detalle de la Reserva #{{ reserva.id }}{% endblock %}
+
+{% block content %}
+    <h2>Detalle de la Reserva</h2>
+
+    <p><strong>ID:</strong> {{ reserva.id }}</p>
+    <p><strong>Huésped:</strong> {{ reserva.nombreHuesped }}</p>
+    <p><strong>Alojamiento:</strong> {{ reserva.nombreAlojamiento }}</p>
+    <p><strong>Fecha de Entrada:</strong> {{ reserva.fechaEntrada }}</p>
+    <p><strong>Fecha de Salida:</strong> {{ reserva.fechaSalida }}</p>
+    <p><strong>Estado:</strong> {{ reserva.estado }}</p>
+    <p><strong>Importe:</strong> {{ reserva.importe }} €</p>
+
+    <h3>Eventos asociados</h3>
+    <ul>
+        {% for evento in eventos %}
+            <li>Descripción: {{ evento.descripcion ?? 'Evento sin descripción' }} | Fecha de modificación: {{ evento.fecha }}</li>
+        {% else %}
+            <li>No hay eventos registrados para esta reserva.</li>
+        {% endfor %}
+    </ul>
+
+    <p><a href="/public/index.php">← Volver al listado</a></p>
+{% endblock %}

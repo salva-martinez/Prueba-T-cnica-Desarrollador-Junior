@@ -35,7 +35,7 @@ class ReservaEvento
         return $this->tipo;
     }
 
-    public function getdescripcion()
+    public function getDescripcion()
     {
         return $this->descripcion;
     }

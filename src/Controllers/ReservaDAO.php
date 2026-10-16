@@ -126,7 +126,7 @@ class ReservaDAO
 
     public static function getAll(?string $estado = null, ?string $fechaInicio = null, ?string $fechaFin = null, ?string $nombreHuesped = null): array
     {
-        $llista_reservas = [];
+        $lista_reservas = [];
         $conn = DBConnection::connectDB();
 
         if (!is_null($conn)) {
@@ -169,9 +169,9 @@ class ReservaDAO
             $stmt->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Reserva');
 
             while ($reserva = $stmt->fetch()) {
-                $llista_reservas[] = $reserva;
+                $lista_reservas[] = $reserva;
             }
         }
-        return $llista_reservas;
+        return $lista_reservas;
     }
 }
