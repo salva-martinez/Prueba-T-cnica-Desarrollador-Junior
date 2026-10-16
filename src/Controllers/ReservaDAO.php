@@ -1,8 +1,10 @@
 <?php
 
-require_once  __DIR__ . '/../Models/Reserva.php';
-require_once  __DIR__ . '/../../dbConnetion.php';
-require_once  __DIR__ . '/../../DbAccess.php';
+require_once __DIR__ . '/../Models/Reserva.php';
+require_once __DIR__ . '/../Models/ReservaEvento.php';
+require_once __DIR__ . '/ReservaEventoDAO.php';
+require_once __DIR__ . '/../../dbConnetion.php';
+require_once __DIR__ . '/../../DbAccess.php';
 
 class ReservaDAO
 {
@@ -65,7 +67,7 @@ class ReservaDAO
             ]);
             $reservaId = $conn->lastInsertId();
 
-            if ($reservaId < 0) {
+            if ($reservaId > 0) {
                 $evento = new ReservaEvento();
                 $evento->setReservaId($reservaId);
                 $evento->setTipo("creada");
