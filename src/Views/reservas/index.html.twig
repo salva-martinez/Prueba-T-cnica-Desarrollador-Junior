@@ -4,14 +4,63 @@
 
 {% block content %}
     <h2>Listado de todas las reservas</h2>
-    
-    <!-- Si estás pasando una variable con las reservas desde PHP, puedes recorrerla así: -->
-    <ul>
-        {% for reserva in reservas %}
-            <li>Reserva ID: {{ reserva.id }} - Entrada: {{ reserva.fechaEntrada }}</li>
-            <li>Reserva ID: {{ reserva.id }} - Creada: {{ reserva.fecha }}</li>
-        {% else %}
-            <li>No hay reservas registradas.</li>
-        {% endfor %}
-    </ul>
+
+    <!-- Formulario de Filtros -->
+    <form method="GET" action="" style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd;">
+        <label for="nombre">Huésped:</label>
+        <input type="text" id="nombre" name="nombre" value="{{ filtros.nombre ?? '' }}" placeholder="Nombre del huésped...">
+
+        <label for="estado">Estado:</label>
+        <select id="estado" name="estado">
+            <option value="">-- Todos --</option>
+            <option value="confirmada" {% if filtros.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
+            <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+            <option value="cancelada" {% if filtros.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+        </select>
+
+        <label for="fecha_inicio">Desde:</label>
+        <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ filtros.fecha_inicio ?? '' }}">
+
+        <label for="fecha_fin">Hasta:</label>
+        <input type="date" id="fecha_fin" name="fecha_fin" value="{{ filtros.fecha_fin ?? '' }}">
+
+        <button type="submit">Filtrar</button>
+        <a href="/public/index.php" style="margin-left: 10px;">Limpiar filtros</a>
+    </form>
+
+    <!-- Tabla con el resultado filtrado -->
+    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f2f2f2; text-align: left;">
+                <th>ID</th>
+                <th>Huésped</th>
+                <th>Alojamiento</th>
+                <th>Entrada</th>
+                <th>Salida</th>
+                <th>Estado</th>
+                <th>Importe</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reserva in reservas %}
+                <tr>
+                    <td>{{ reserva.id }}</td>
+                    <td>{{ reserva.nombreHuesped }}</td>
+                    <td>{{ reserva.nombreAlojamiento }}</td>
+                    <td>{{ reserva.fechaEntrada }}</td>
+                    <td>{{ reserva.fechaSalida }}</td>
+                    <td>{{ reserva.estado }}</td>
+                    <td>{{ reserva.importe }} €</td>
+                    <td>
+                        <a href="/reservas/{{ reserva.id }}">Ver detalle</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" style="text-align: center;">No hay reservas que coincidan con los filtros.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
