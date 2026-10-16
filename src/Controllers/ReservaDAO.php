@@ -1,8 +1,8 @@
 <?php
 
-require_once './src/Models/Reserva.php';
-require_once './dbConnetion.php';
-require_once './DbAccess.php';
+require_once  __DIR__ . '/../Models/Reserva.php';
+require_once  __DIR__ . '/../../dbConnetion.php';
+require_once  __DIR__ . '/../../DbAccess.php';
 
 class ReservaDAO
 {
