@@ -1,0 +1,17 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Lista de Reservas{% endblock %}
+
+{% block content %}
+    <h2>Listado de todas las reservas</h2>
+    
+    <!-- Si estás pasando una variable con las reservas desde PHP, puedes recorrerla así: -->
+    <ul>
+        {% for reserva in reservas %}
+            <li>Reserva ID: {{ reserva.id }} - Entrada: {{ reserva.fechaEntrada }}</li>
+            <li>Reserva ID: {{ reserva.id }} - Creada: {{ reserva.fecha }}</li>
+        {% else %}
+            <li>No hay reservas registradas.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

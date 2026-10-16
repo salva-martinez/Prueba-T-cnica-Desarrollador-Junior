@@ -73,6 +73,11 @@ class Reserva
         return $this->notas;
     }
 
+    public function getFecha()
+    {
+        return $this->fechaCreacion;
+    }
+
     //Setters
     public function setId($id)
     {

@@ -139,7 +139,7 @@ class ReservaDAO
                            estado,
                            importe,
                            notas,
-                           fecha_creacion 
+                           fecha_creacion AS fechaCreacion
                     FROM reserva WHERE 1=1";
 
             $params = [];
