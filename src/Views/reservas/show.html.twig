@@ -1,9 +1,9 @@
 {% extends "base.html.twig" %}
 
-{% block title %}Detalle de la Reserva #{{ reserva.id }}{% endblock %}
+{% block title %}Detalle de la Reserva id: {{ reserva.id }}{% endblock %}
 
 {% block content %}
-    <h2>Detalle de la Reserva</h2>
+    <h2>Detalle de la Reserva {{ reserva.id }}</h2>
 
     <p><strong>ID:</strong> {{ reserva.id }}</p>
     <p><strong>Huésped:</strong> {{ reserva.nombreHuesped }}</p>
@@ -15,6 +15,11 @@
 
     <h3>Eventos asociados</h3>
     <ul>
+        <li>Tipo: 
+            {% for evento in eventos %}
+                | {{ evento.tipo }}
+            {% endfor %}
+        </li>
         {% for evento in eventos %}
             <li>Descripción: {{ evento.descripcion ?? 'Evento sin descripción' }} | Fecha de modificación: {{ evento.fecha }}</li>
         {% else %}

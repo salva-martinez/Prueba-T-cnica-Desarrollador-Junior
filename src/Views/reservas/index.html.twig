@@ -6,32 +6,39 @@
     <h2>Listado de todas las reservas</h2>
 
     <!-- Formulario de Filtros -->
-    <form method="GET" action="" style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd;">
-        <label for="nombre">Huésped:</label>
-        <input type="text" id="nombre" name="nombre" value="{{ filtros.nombre ?? '' }}" placeholder="Nombre del huésped...">
+    <form id="filtros-reservas" method="GET" action="/public/index.php">
+    <label for="nombre">Huésped</label>
+    <input
+        type="text"
+        id="nombre"
+        name="nombre"
+        value="{{ filtros.nombre ?? '' }}"
+    >
 
-        <label for="estado">Estado:</label>
-        <select id="estado" name="estado">
-            <option value="">-- Todos --</option>
-            <option value="confirmada" {% if filtros.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
-            <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
-            <option value="cancelada" {% if filtros.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
-        </select>
+    <label for="estado">Estado</label>
+    <select id="estado" name="estado">
+        <option value="">Todos</option>
+        <option value="confirmada">Confirmada</option>
+        <option value="pendiente">Pendiente</option>
+        <option value="cancelada">Cancelada</option>
+    </select>
 
-        <label for="fecha_inicio">Desde:</label>
-        <input type="date" id="fecha_inicio" name="fecha_inicio" value="{{ filtros.fecha_inicio ?? '' }}">
+    <label for="fecha_inicio">Desde</label>
+    <input type="date" id="fecha_inicio" name="fecha_inicio">
 
-        <label for="fecha_fin">Hasta:</label>
-        <input type="date" id="fecha_fin" name="fecha_fin" value="{{ filtros.fecha_fin ?? '' }}">
+    <label for="fecha_fin">Hasta</label>
+    <input type="date" id="fecha_fin" name="fecha_fin">
 
-        <button type="submit">Filtrar</button>
-        <a href="/public/index.php" style="margin-left: 10px;">Limpiar filtros</a>
-    </form>
+    <button type="submit">Filtrar</button>
+    <button id="limpiarFiltros" type="button" style="margin-left: 10px;">Limpiar filtros</button>
+</form>
 
-    <!-- Tabla con el resultado filtrado -->
-    <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+<p id="estado-listado" role="status" aria-live="polite"></p>
+
+<div class="tabla-contenedor">
+    <table class="tabla-reservas">
         <thead>
-            <tr style="background-color: #f2f2f2; text-align: left;">
+            <tr>
                 <th>ID</th>
                 <th>Huésped</th>
                 <th>Alojamiento</th>
@@ -42,7 +49,8 @@
                 <th>Acciones</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="cuerpo-reservas">
+            {# Conserva aquí el bucle Twig actual como contenido inicial #}
             {% for reserva in reservas %}
                 <tr>
                     <td>{{ reserva.id }}</td>
@@ -53,14 +61,21 @@
                     <td>{{ reserva.estado }}</td>
                     <td>{{ reserva.importe }} €</td>
                     <td>
-                        <a href="/public/index.php?id={{ reserva.id }}">Ver detalle</a>
+                        <a href="/public/index.php?id={{ reserva.id }}">
+                            Ver detalle
+                        </a>
                     </td>
                 </tr>
             {% else %}
                 <tr>
-                    <td colspan="8" style="text-align: center;">No hay reservas que coincidan con los filtros.</td>
+                    <td colspan="8">No hay reservas.</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/js/reservas.js" defer></script>
 {% endblock %}
