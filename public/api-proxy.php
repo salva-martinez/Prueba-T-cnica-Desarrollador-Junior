@@ -10,7 +10,6 @@ $accion = $_GET['accion'] ?? '';
 if ($accion === 'listar') {
     $url = rtrim(API_BASE_URL, '/') . '/getReservas.php';
     $metodo = 'GET';
-
 } elseif ($accion === 'crear') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
@@ -22,7 +21,17 @@ if ($accion === 'listar') {
 
     $url = rtrim(API_BASE_URL, '/') . '/postReserva.php';
     $metodo = 'POST';
+} elseif ($accion === 'cancelar') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        http_response_code(405);
+        echo json_encode([
+            'error' => 'Para cancelar una reserva debes utilizar POST.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
+    $url = rtrim(API_BASE_URL, '/') . '/putReservas.php';
+    $metodo = 'POST';
 } else {
     http_response_code(400);
     echo json_encode([

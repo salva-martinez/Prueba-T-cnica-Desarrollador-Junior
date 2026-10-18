@@ -13,19 +13,42 @@
     <p><strong>Estado:</strong> {{ reserva.estado }}</p>
     <p><strong>Importe:</strong> {{ reserva.importe }} €</p>
 
-    <h3>Eventos asociados</h3>
-    <ul>
-        <li>Tipo: 
-            {% for evento in eventos %}
-                | {{ evento.tipo }}
-            {% endfor %}
-        </li>
-        {% for evento in eventos %}
-            <li>Descripción: {{ evento.descripcion ?? 'Evento sin descripción' }} | Fecha de modificación: {{ evento.fecha }}</li>
-        {% else %}
-            <li>No hay eventos registrados para esta reserva.</li>
-        {% endfor %}
-    </ul>
+    <h3>Historial de eventos</h3>
 
-    <p><a href="/public/index.php">← Volver al listado</a></p>
+    <div class="historial-eventos">
+        {% for evento in eventos %}
+            <div class="evento">
+                <div class="evento-cabecera">
+                    <span class="evento-tipo evento-{{ evento.tipo|lower }}">
+                        {{ evento.tipo|capitalize }}
+                    </span>
+
+                    {% if loop.last %}
+                        <span class="evento-actual">
+                            Estado actual
+                        </span>
+                    {% endif %}
+                </div>
+
+                <p class="evento-descripcion">
+                    {{ evento.descripcion ?? 'Evento sin descripción' }}
+                </p>
+
+                <p class="evento-fecha">
+                    <span>Fecha:</span>
+                    {{ evento.fecha }}
+                </p>
+            </div>
+        {% else %}
+            <p>No hay eventos registrados para esta reserva.</p>
+        {% endfor %}
+    </div>
+
+    <p id="mensajeCancelacion" role="status" aria-live="polite"></p>
+
+    <p><a href="/">← Volver al listado</a></p>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/js/cancelarReserva.js" defer></script>
 {% endblock %}

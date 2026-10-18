@@ -14,6 +14,83 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST
 
 $input = json_decode(file_get_contents("php://input"), true);
 
+// Comprobar si la petición es una cancelación.
+if (
+    is_array($input)
+    && isset($input['accion'])
+    && $input['accion'] === 'cancelar'
+) {
+    // Validar que el ID sea un entero positivo.
+    $id = filter_var(
+        $input['id'] ?? null,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1]]
+    );
+
+    if ($id === false) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => 'error',
+            'error' => 'El ID de la reserva no es válido.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    try {
+        $reserva = ReservaDAO::select($id);
+
+        if (!$reserva) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'Reserva no encontrada.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        if ($reserva->getEstado() === 'cancelada') {
+            http_response_code(409);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'Esta reserva ya está cancelada.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $reserva->setEstado('cancelada');
+        $filas = ReservaDAO::update($reserva);
+
+        // Verificar el estado guardado en la base de datos.
+        $reservaActualizada = ReservaDAO::select($id);
+
+        if (!$reservaActualizada ||
+            $reservaActualizada->getEstado() !== 'cancelada') {
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'No se pudo cancelar la reserva.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'mensaje' => 'Reserva cancelada correctamente.',
+            'id' => $id,
+            'estado' => 'cancelada'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'error' => 'Error al cancelar la reserva.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
 $errores = ReservaValidator::validarActualizacion($input);
 
 if (!empty($errores)) {
