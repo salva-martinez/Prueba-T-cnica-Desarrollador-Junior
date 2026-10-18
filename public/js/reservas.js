@@ -2,24 +2,40 @@
 const formulario = document.querySelector("#filtros-reservas");
 const cuerpo = document.querySelector("#cuerpo-reservas");
 const estadoListado = document.querySelector("#estado-listado");
+const paginacion = document.querySelector("#paginacion-reservas");
+const botonLimpiar = document.querySelector("#limpiarFiltros");
+
+const reservasPorPagina = 10;
+let paginaActual = 1;
+let reservasActuales = [];
 
 if (formulario && cuerpo && estadoListado) {
     formulario.addEventListener("submit", (event) => {
         event.preventDefault();
+        paginaActual = 1;
         cargarReservas();
     });
 
     cargarReservas();
 }
 
+if (botonLimpiar) {
+    botonLimpiar.addEventListener("click", () => {
+        document.querySelector("#nombre").value = "";
+        document.querySelector("#estado").value = "";
+        document.querySelector("#fecha_inicio").value = "";
+        document.querySelector("#fecha_fin").value = "";
+
+        paginaActual = 1;
+        cargarReservas();
+    });
+}
+
 async function cargarReservas() {
     estadoListado.textContent = "Cargando reservas...";
 
     try {
-        const respuesta = await fetch(
-            "/api-proxy.php?accion=listar"
-        );
-
+        const respuesta = await fetch("/api-proxy.php?accion=listar");
         const resultado = await respuesta.json();
 
         if (!respuesta.ok) {
@@ -32,31 +48,34 @@ async function cargarReservas() {
             throw new Error("La respuesta de la API no contiene una lista válida.");
         }
 
-        const reservasFiltradas = filtrarReservas(resultado.data);
+        reservasActuales = filtrarReservas(resultado.data);
 
-        pintarReservas(reservasFiltradas);
+        const totalPaginas = Math.ceil(
+            reservasActuales.length / reservasPorPagina
+        );
+
+        if (totalPaginas === 0) {
+            paginaActual = 1;
+        } else if (paginaActual > totalPaginas) {
+            paginaActual = totalPaginas;
+        }
+
+        pintarReservas();
 
         estadoListado.textContent =
-            `${reservasFiltradas.length} reservas encontradas.`;
+            `${reservasActuales.length} reservas encontradas.`;
 
     } catch (error) {
         estadoListado.textContent =
             `No se pudieron cargar las reservas: ${error.message}`;
+
+        cuerpo.replaceChildren();
+
+        if (paginacion) {
+            paginacion.replaceChildren();
+        }
     }
 }
-
-const botonLimpiar = document.querySelector("#limpiarFiltros");
-
-botonLimpiar.addEventListener("click", () => {
-    document.querySelector("#nombre").value = "";
-
-    document.querySelector("#estado").value = "";
-
-    document.querySelector("#fecha_inicio").value = "";
-    document.querySelector("#fecha_fin").value = "";
-
-    cargarReservas();
-});
 
 function filtrarReservas(reservas) {
     const nombre = document.querySelector("#nombre").value
@@ -88,22 +107,34 @@ function filtrarReservas(reservas) {
     });
 }
 
-function pintarReservas(reservas) {
+function pintarReservas() {
     cuerpo.replaceChildren();
 
-    if (reservas.length === 0) {
+    if (reservasActuales.length === 0) {
         const fila = document.createElement("tr");
         const celda = document.createElement("td");
 
         celda.colSpan = 8;
-        celda.textContent = "No hay reservas que coincidan con los filtros.";
+        celda.textContent =
+            "No hay reservas que coincidan con los filtros.";
 
         fila.append(celda);
         cuerpo.append(fila);
+
+        if (paginacion) {
+            paginacion.replaceChildren();
+        }
+
         return;
     }
 
-    for (const reserva of reservas) {
+    const inicio = (paginaActual - 1) * reservasPorPagina;
+    const reservasPagina = reservasActuales.slice(
+        inicio,
+        inicio + reservasPorPagina
+    );
+
+    for (const reserva of reservasPagina) {
         const fila = document.createElement("tr");
 
         const valores = [
@@ -133,4 +164,66 @@ function pintarReservas(reservas) {
         fila.append(acciones);
         cuerpo.append(fila);
     }
+
+    crearPaginacion();
+}
+
+function crearPaginacion() {
+    if (!paginacion) {
+        return;
+    }
+
+    paginacion.replaceChildren();
+
+    const totalPaginas = Math.ceil(
+        reservasActuales.length / reservasPorPagina
+    );
+
+    if (totalPaginas <= 1) {
+        return;
+    }
+
+    const botonAnterior = document.createElement("button");
+    botonAnterior.type = "button";
+    botonAnterior.textContent = "Anterior";
+    botonAnterior.disabled = paginaActual === 1;
+
+    botonAnterior.addEventListener("click", () => {
+        paginaActual--;
+        pintarReservas();
+    });
+
+    paginacion.append(botonAnterior);
+
+    for (let numero = 1; numero <= totalPaginas; numero++) {
+        const boton = document.createElement("button");
+
+        boton.type = "button";
+        boton.textContent = numero;
+        boton.className = "pagina-numero";
+        boton.disabled = numero === paginaActual;
+
+        if (numero === paginaActual) {
+            boton.setAttribute("aria-current", "page");
+        }
+
+        boton.addEventListener("click", () => {
+            paginaActual = numero;
+            pintarReservas();
+        });
+
+        paginacion.append(boton);
+    }
+
+    const botonSiguiente = document.createElement("button");
+    botonSiguiente.type = "button";
+    botonSiguiente.textContent = "Siguiente";
+    botonSiguiente.disabled = paginaActual === totalPaginas;
+
+    botonSiguiente.addEventListener("click", () => {
+        paginaActual++;
+        pintarReservas();
+    });
+
+    paginacion.append(botonSiguiente);
 }

@@ -486,6 +486,36 @@ button:disabled {
     overflow-wrap: anywhere;
 }
 
+/* Paginación del listado */
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.paginacion button {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+}
+
+.paginacion button:hover:not(:disabled) {
+    background-color: #e8f1fa;
+}
+
+.paginacion button:disabled {
+    background-color: #1769aa;
+    border-color: #1769aa;
+    color: #fff;
+    cursor: default;
+}
+
 /* Cabecera centrada */
 header {
     text-align: center;
@@ -585,5 +615,15 @@ footer p {
 
     .formulario-pagina h1 {
         font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 520px) {
+    .paginacion {
+        gap: 5px;
+    }
+
+    .paginacion button {
+        padding: 8px 10px;
     }
 }

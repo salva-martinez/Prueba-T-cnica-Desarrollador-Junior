@@ -14,13 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'PUT' && $_SERVER['REQUEST_METHOD'] !== 'POST
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-// Comprobar si la petición es una cancelación.
 if (
     is_array($input)
     && isset($input['accion'])
     && $input['accion'] === 'cancelar'
 ) {
-    // Validar que el ID sea un entero positivo.
     $id = filter_var(
         $input['id'] ?? null,
         FILTER_VALIDATE_INT,
@@ -60,7 +58,6 @@ if (
         $reserva->setEstado('cancelada');
         $filas = ReservaDAO::update($reserva);
 
-        // Verificar el estado guardado en la base de datos.
         $reservaActualizada = ReservaDAO::select($id);
 
         if (
@@ -92,7 +89,6 @@ if (
     }
 }
 
-// Comprobar si la petición es una confirmación.
 if (
     is_array($input)
     && isset($input['accion'])
@@ -125,7 +121,6 @@ if (
             exit;
         }
 
-        // Solo se pueden confirmar reservas pendientes.
         if ($reserva->getEstado() !== 'pendiente') {
             http_response_code(409);
             echo json_encode([
@@ -138,7 +133,6 @@ if (
         $reserva->setEstado('confirmada');
         ReservaDAO::update($reserva);
 
-        // Comprobar que el cambio se ha guardado.
         $reservaActualizada = ReservaDAO::select($id);
 
         if (

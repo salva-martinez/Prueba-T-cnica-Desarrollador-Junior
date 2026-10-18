@@ -13,7 +13,6 @@ const campos = [
     "notas"
 ];
 
-// Borra los mensajes de errores anteriores.
 function limpiarErrores() {
     campos.forEach((campo) => {
         const elementoError = document.querySelector(`#error_${campo}`);
@@ -26,7 +25,6 @@ function limpiarErrores() {
     mensajeFormulario.textContent = "";
 }
 
-// Muestra un error debajo de un campo.
 function mostrarError(campo, mensaje) {
     const elementoError = document.querySelector(`#error_${campo}`);
 
@@ -49,7 +47,6 @@ function programarLimpiezaMensajes(segundos = 5) {
     }, segundos * 1000);
 }
 
-// Valida los datos antes de enviarlos al servidor.
 function validarFormulario(datos) {
     const errores = {};
 
@@ -109,7 +106,6 @@ formulario.addEventListener("submit", async (event) => {
 
     limpiarErrores();
 
-    // Recoger los datos del formulario.
     const datos = {
         nombre_huesped: document.querySelector("#nombre_huesped").value.trim(),
         email_huesped: document.querySelector("#email_huesped").value.trim(),
@@ -120,7 +116,6 @@ formulario.addEventListener("submit", async (event) => {
         notas: document.querySelector("#notas").value.trim()
     };
 
-    // Primero validar en el navegador.
     const errores = validarFormulario(datos);
 
     if (Object.keys(errores).length > 0) {
@@ -152,7 +147,6 @@ formulario.addEventListener("submit", async (event) => {
         const resultado = await respuesta.json();
 
         if (!respuesta.ok) {
-            // Mostrar los errores de validación que devuelve la API.
             if (Array.isArray(resultado.mensajes)) {
                 resultado.mensajes.forEach((mensaje) => {
                     const texto = mensaje.toLowerCase();
@@ -187,7 +181,6 @@ formulario.addEventListener("submit", async (event) => {
 
         formulario.reset();
 
-        // Esperar 2 segundos y volver al listado.
         cancelarTemporizador();
 
         setTimeout(() => {
