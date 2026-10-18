@@ -3,15 +3,48 @@
 {% block title %}Detalle de la Reserva id: {{ reserva.id }}{% endblock %}
 
 {% block content %}
-    <h2>Detalle de la Reserva {{ reserva.id }}</h2>
+    
+    <h2>Detalle de la reserva #{{ reserva.id }}</h2>
 
-    <p><strong>ID:</strong> {{ reserva.id }}</p>
-    <p><strong>Huésped:</strong> {{ reserva.nombreHuesped }}</p>
-    <p><strong>Alojamiento:</strong> {{ reserva.nombreAlojamiento }}</p>
-    <p><strong>Fecha de Entrada:</strong> {{ reserva.fechaEntrada }}</p>
-    <p><strong>Fecha de Salida:</strong> {{ reserva.fechaSalida }}</p>
-    <p><strong>Estado:</strong> {{ reserva.estado }}</p>
-    <p><strong>Importe:</strong> {{ reserva.importe }} €</p>
+    <div class="detalle-reserva">
+        <p>
+            <strong>ID:</strong>
+            {{ reserva.id }}
+        </p>
+
+        <p>
+            <strong>Huésped:</strong>
+            {{ reserva.nombreHuesped }}
+        </p>
+
+        <p>
+            <strong>Alojamiento:</strong>
+            {{ reserva.nombreAlojamiento }}
+        </p>
+
+        <p>
+            <strong>Fecha de entrada:</strong>
+            {{ reserva.fechaEntrada }}
+        </p>
+
+        <p>
+            <strong>Fecha de salida:</strong>
+            {{ reserva.fechaSalida }}
+        </p>
+
+        <p>
+            <strong>Estado:</strong>
+            <span class="estado-detalle estado-detalle-{{ reserva.estado|lower }}">
+                {{ reserva.estado|capitalize }}
+            </span>
+        </p>
+
+        <p>
+            <strong>Importe:</strong>
+            {{ reserva.importe }} €
+        </p>
+    </div>
+
 
     <h3>Historial de eventos</h3>
 
@@ -73,7 +106,9 @@
     <p id="mensajeConfirmacion" role="status" aria-live="polite"></p>
     <p id="mensajeCancelacion" role="status" aria-live="polite"></p>
 
-    <p><a href="/">← Volver al listado</a></p>
+    <p>
+        <a href="/" class="detalle-volver">← Volver al listado</a>
+    </p>
 {% endblock %}
 
 {% block scripts %}

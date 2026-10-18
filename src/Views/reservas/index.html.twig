@@ -11,76 +11,89 @@
     <h2>Listado de todas las reservas</h2>
 
     <!-- Formulario de Filtros -->
+    
     <form id="filtros-reservas" method="GET" action="/public/index.php">
-    <label for="nombre">Huésped</label>
-    <input
-        type="text"
-        id="nombre"
-        name="nombre"
-        value="{{ filtros.nombre ?? '' }}"
-    >
+        <div class="filtro-grupo">
+            <label for="nombre">Huésped</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                value="{{ filtros.nombre ?? '' }}"
+            >
+        </div>
 
-    <label for="estado">Estado</label>
-    <select id="estado" name="estado">
-        <option value="">Todos</option>
-        <option value="confirmada">Confirmada</option>
-        <option value="pendiente">Pendiente</option>
-        <option value="cancelada">Cancelada</option>
-    </select>
+        <div class="filtro-grupo">
+            <label for="estado">Estado</label>
+            <select id="estado" name="estado">
+                <option value="">Todos</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="cancelada">Cancelada</option>
+            </select>
+        </div>
 
-    <label for="fecha_inicio">Desde</label>
-    <input type="date" id="fecha_inicio" name="fecha_inicio">
+        <div class="filtro-grupo">
+            <label for="fecha_inicio">Desde</label>
+            <input type="date" id="fecha_inicio" name="fecha_inicio">
+        </div>
 
-    <label for="fecha_fin">Hasta</label>
-    <input type="date" id="fecha_fin" name="fecha_fin">
+        <div class="filtro-grupo">
+            <label for="fecha_fin">Hasta</label>
+            <input type="date" id="fecha_fin" name="fecha_fin">
+        </div>
 
-    <button type="submit">Filtrar</button>
-    <button id="limpiarFiltros" type="button" style="margin-left: 10px;">Limpiar filtros</button>
-</form>
+        <button type="submit">Filtrar</button>
+        <button id="limpiarFiltros" type="button">Limpiar filtros</button>
+    </form>
 
-<p id="estado-listado" role="status" aria-live="polite"></p>
+    <p id="estado-listado" role="status" aria-live="polite"></p>
 
-<div class="tabla-contenedor">
-    <table class="tabla-reservas">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Huésped</th>
-                <th>Alojamiento</th>
-                <th>Entrada</th>
-                <th>Salida</th>
-                <th>Estado</th>
-                <th>Importe</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody id="cuerpo-reservas">
-            {# Conserva aquí el bucle Twig actual como contenido inicial #}
-            {% for reserva in reservas %}
+    <div class="tabla-contenedor">
+        <table class="tabla-reservas">
+            <thead>
                 <tr>
-                    <td>{{ reserva.id }}</td>
-                    <td>{{ reserva.nombreHuesped }}</td>
-                    <td>{{ reserva.nombreAlojamiento }}</td>
-                    <td>{{ reserva.fechaEntrada }}</td>
-                    <td>{{ reserva.fechaSalida }}</td>
-                    <td>{{ reserva.estado }}</td>
-                    <td>{{ reserva.importe }} €</td>
-                    <td>
-                        <a href="/reservas/{{ reserva.id }}">
-                            Ver detalle
-                        </a>
-                    </td>
+                    <th>ID</th>
+                    <th>Huésped</th>
+                    <th>Alojamiento</th>
+                    <th>Entrada</th>
+                    <th>Salida</th>
+                    <th>Estado</th>
+                    <th>Importe</th>
+                    <th>Acciones</th>
                 </tr>
-            {% else %}
-                <tr>
-                    <td colspan="8">No hay reservas.</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody id="cuerpo-reservas">
+                {# Conserva aquí el bucle Twig actual como contenido inicial #}
+                {% for reserva in reservas %}
+                    <tr>
+                        <td>{{ reserva.id }}</td>
+                        <td>{{ reserva.nombreHuesped }}</td>
+                        <td>{{ reserva.nombreAlojamiento }}</td>
+                        <td>{{ reserva.fechaEntrada }}</td>
+                        <td>{{ reserva.fechaSalida }}</td>
+                        <td>
+                            <span class="estado-etiqueta estado-{{ reserva.estado|lower }}">
+                                {{ reserva.estado|capitalize }}
+                            </span>
+                        </td>
+                        <td>{{ reserva.importe }} €</td>
+                        <td>
+                            <a href="/reservas/{{ reserva.id }}">
+                                Ver detalle
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="8">No hay reservas.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="/js/reservas.js" defer></script>
+    <script src="/js/reservas.js" defer></script>
 {% endblock %}
