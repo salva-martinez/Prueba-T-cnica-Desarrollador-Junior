@@ -15,34 +15,46 @@
 
     <h3>Historial de eventos</h3>
 
-    <div class="historial-eventos">
-        {% for evento in eventos %}
-            <div class="evento">
-                <div class="evento-cabecera">
-                    <span class="evento-tipo evento-{{ evento.tipo|lower }}">
-                        {{ evento.tipo|capitalize }}
-                    </span>
-
-                    {% if loop.last %}
-                        <span class="evento-actual">
-                            Estado actual
+        <div class="historial-eventos">
+            {% for evento in eventos %}
+                <div class="evento">
+                    <div class="evento-cabecera">
+                        <span class="evento-tipo evento-{{ evento.tipo|lower }}">
+                            {{ evento.tipo|capitalize }}
                         </span>
-                    {% endif %}
+
+                        {% if loop.last %}
+                            <span class="evento-actual">
+                                Estado actual
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <p class="evento-descripcion">
+                        {{ evento.descripcion ?? 'Evento sin descripción' }}
+                    </p>
+
+                    <p class="evento-fecha">
+                        <span>Fecha:</span>
+                        {{ evento.fecha }}
+                    </p>
                 </div>
+            {% else %}
+                <p>No hay eventos registrados para esta reserva.</p>
+            {% endfor %}
+        </div>
 
-                <p class="evento-descripcion">
-                    {{ evento.descripcion ?? 'Evento sin descripción' }}
-                </p>
-
-                <p class="evento-fecha">
-                    <span>Fecha:</span>
-                    {{ evento.fecha }}
-                </p>
-            </div>
-        {% else %}
-            <p>No hay eventos registrados para esta reserva.</p>
-        {% endfor %}
-    </div>
+        {% if reserva.estado != 'cancelada' %}
+        <button
+            type="button"
+            id="btnCancelarReserva"
+            data-id="{{ reserva.id }}"
+            class="btn-cancelar">
+            Cancelar reserva
+        </button>
+    {% else %}
+        <p>Esta reserva ya está cancelada.</p>
+    {% endif %}
 
     <p id="mensajeCancelacion" role="status" aria-live="polite"></p>
 
