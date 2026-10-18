@@ -1,7 +1,204 @@
+
 const formulario = document.querySelector("#formNuevaReserva");
+const mensajeFormulario = document.querySelector("#mensajeFormulario");
+let temporizadorMensajes;
 
-formulario.addEventListener("submit", (event) => {
+const campos = [
+    "nombre_huesped",
+    "email_huesped",
+    "nombre_alojamiento",
+    "fecha_entrada",
+    "fecha_salida",
+    "importe",
+    "notas"
+];
+
+// Borra los mensajes de errores anteriores.
+function limpiarErrores() {
+    campos.forEach((campo) => {
+        const elementoError = document.querySelector(`#error_${campo}`);
+
+        if (elementoError) {
+            elementoError.textContent = "";
+        }
+    });
+
+    mensajeFormulario.textContent = "";
+}
+
+// Muestra un error debajo de un campo.
+function mostrarError(campo, mensaje) {
+    const elementoError = document.querySelector(`#error_${campo}`);
+
+    if (elementoError) {
+        elementoError.textContent = mensaje;
+    } else {
+        mensajeFormulario.textContent += `${mensaje} `;
+    }
+}
+
+function cancelarTemporizador() {
+    clearTimeout(temporizadorMensajes);
+}
+
+function programarLimpiezaMensajes(segundos = 5) {
+    cancelarTemporizador();
+
+    temporizadorMensajes = setTimeout(() => {
+        limpiarErrores();
+    }, segundos * 1000);
+}
+
+// Valida los datos antes de enviarlos al servidor.
+function validarFormulario(datos) {
+    const errores = {};
+
+    const nombre = datos.nombre_huesped.trim();
+    const email = datos.email_huesped.trim();
+    const alojamiento = datos.nombre_alojamiento.trim();
+    const entrada = datos.fecha_entrada;
+    const salida = datos.fecha_salida;
+    const importeTexto = datos.importe.trim();
+    const importe = Number(importeTexto);
+
+    if (!nombre) {
+        errores.nombre_huesped = "El nombre del huésped es obligatorio.";
+    } else if (nombre.length > 100) {
+        errores.nombre_huesped =
+            "El nombre del huésped no puede superar los 100 caracteres.";
+    }
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errores.email_huesped =
+            "Introduce un correo electrónico válido.";
+    }
+
+    if (!alojamiento) {
+        errores.nombre_alojamiento =
+            "El nombre del alojamiento es obligatorio.";
+    }
+
+    if (!entrada) {
+        errores.fecha_entrada = "La fecha de entrada es obligatoria.";
+    }
+
+    if (!salida) {
+        errores.fecha_salida = "La fecha de salida es obligatoria.";
+    }
+
+    if (entrada && salida && salida <= entrada) {
+        errores.fecha_salida =
+            "La salida debe ser posterior a la entrada.";
+    }
+
+    if (
+        importeTexto === "" ||
+        !Number.isFinite(importe) ||
+        importe < 0
+    ) {
+        errores.importe =
+            "El importe es obligatorio y debe ser mayor o igual que cero.";
+    }
+
+    return errores;
+}
+
+formulario.addEventListener("submit", async (event) => {
     event.preventDefault();
+    cancelarTemporizador();
 
-    console.log("El formulario funciona correctamente.");
+    limpiarErrores();
+
+    // Recoger los datos del formulario.
+    const datos = {
+        nombre_huesped: document.querySelector("#nombre_huesped").value.trim(),
+        email_huesped: document.querySelector("#email_huesped").value.trim(),
+        nombre_alojamiento: document.querySelector("#nombre_alojamiento").value.trim(),
+        fecha_entrada: document.querySelector("#fecha_entrada").value,
+        fecha_salida: document.querySelector("#fecha_salida").value,
+        importe: document.querySelector("#importe").value.trim(),
+        notas: document.querySelector("#notas").value.trim()
+    };
+
+    // Primero validar en el navegador.
+    const errores = validarFormulario(datos);
+
+    if (Object.keys(errores).length > 0) {
+        Object.entries(errores).forEach(([campo, mensaje]) => {
+            mostrarError(campo, mensaje);
+        });
+
+        mensajeFormulario.textContent =
+            "Revisa los campos indicados antes de continuar.";
+
+        programarLimpiezaMensajes(5);
+        return;
+    }
+
+    const boton = formulario.querySelector('button[type="submit"]');
+    boton.disabled = true;
+    mensajeFormulario.textContent = "Guardando reserva...";
+
+    try {
+        const respuesta = await fetch("/api-proxy.php?accion=crear", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(datos)
+        });
+
+        const resultado = await respuesta.json();
+
+        if (!respuesta.ok) {
+            // Mostrar los errores de validación que devuelve la API.
+            if (Array.isArray(resultado.mensajes)) {
+                resultado.mensajes.forEach((mensaje) => {
+                    const texto = mensaje.toLowerCase();
+
+                    if (texto.includes("nombre del huésped")) {
+                        mostrarError("nombre_huesped", mensaje);
+                    } else if (texto.includes("correo")) {
+                        mostrarError("email_huesped", mensaje);
+                    } else if (texto.includes("alojamiento")) {
+                        mostrarError("nombre_alojamiento", mensaje);
+                    } else if (texto.includes("fecha")) {
+                        mostrarError("fecha_entrada", mensaje);
+                        mostrarError("fecha_salida", mensaje);
+                    } else if (texto.includes("importe")) {
+                        mostrarError("importe", mensaje);
+                    } else {
+                        mensajeFormulario.textContent += `${mensaje} `;
+                    }
+                });
+            } else {
+                mensajeFormulario.textContent =
+                    resultado.error || "No se pudo crear la reserva.";
+            }
+
+            programarLimpiezaMensajes(5);
+            return;
+        }
+
+        mensajeFormulario.textContent =
+            `${resultado.mensaje || "Reserva creada correctamente."} ` +
+            `ID: ${resultado.id}`;
+
+        formulario.reset();
+
+        // Esperar 2 segundos y volver al listado.
+        cancelarTemporizador();
+
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 2000);
+
+    } catch (error) {
+        mensajeFormulario.textContent =
+            "No se pudo conectar con el servidor. Inténtalo de nuevo.";
+        console.error(error);
+    } finally {
+        boton.disabled = false;
+    }
 });
