@@ -73,6 +73,9 @@ function validarFormulario(datos) {
     if (!alojamiento) {
         errores.nombre_alojamiento =
             "El nombre del alojamiento es obligatorio.";
+    } else if (alojamiento.length > 100) {
+        errores.nombre_alojamiento =
+            "El nombre del alojamiento no puede superar los 100 caracteres.";
     }
 
     if (!entrada) {
@@ -95,6 +98,11 @@ function validarFormulario(datos) {
     ) {
         errores.importe =
             "El importe es obligatorio y debe ser mayor o igual que cero.";
+    }
+
+    if (datos.notas.length > 500) {
+        errores.notas =
+            "El contenido de la nota no puede superar los 500 caracteres.";
     }
 
     return errores;
@@ -162,6 +170,8 @@ formulario.addEventListener("submit", async (event) => {
                         mostrarError("fecha_salida", mensaje);
                     } else if (texto.includes("importe")) {
                         mostrarError("importe", mensaje);
+                    } else if (texto.includes("nota")) {
+                        mostrarError("notas", mensaje);
                     } else {
                         mensajeFormulario.textContent += `${mensaje} `;
                     }

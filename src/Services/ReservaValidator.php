@@ -26,6 +26,8 @@ class ReservaValidator
 
         if ($alojamiento === '') {
             $errores[] = "El nombre del alojamiento es obligatorio.";
+        }elseif (mb_strlen($alojamiento) > 100) {
+            $errores[] = "El nombre del alojamiento no puede superar los 100 caracteres.";
         }
 
         $entrada = $input['fecha_entrada'] ?? '';
@@ -58,6 +60,12 @@ class ReservaValidator
             || (float) $input['importe'] < 0
         ) {
             $errores[] = "El importe es obligatorio, debe ser numérico y no puede ser negativo.";
+        }
+
+        $nota = trim($input['notas'] ?? '');
+
+        if(mb_strlen($nota) > 500){
+            $errores[] = "El contenido de la nota no puede superar los 500 caracteres.";
         }
 
         return $errores;

@@ -1,22 +1,36 @@
 <?php
 
-function verificarApiKey()
+require_once __DIR__ . '/../../config.php';
+
+function verificarApiKey(): void
 {
-    $headers = getallheaders();
-    $tokenEsperado = "MI_TOKEN_SECRETO_123";
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 
-    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+    if ($authHeader === '' && function_exists('getallheaders')) {
+        $headers = getallheaders();
 
-    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-        $tokenRecibido = $matches[1];
-        if ($tokenRecibido === $tokenEsperado) {
-            return true;
+        foreach ($headers as $nombre => $valor) {
+            if (strcasecmp($nombre, 'Authorization') === 0) {
+                $authHeader = $valor;
+                break;
+            }
         }
     }
 
-    http_response_code(401);
-    echo json_encode([
-        "error" => "No autorizado. Token inválido o ausente."
-    ]);
-    exit;
+    if (
+        !preg_match('/^Bearer\s+(\S+)$/i', trim($authHeader), $matches)
+        || !defined('API_TOKEN')
+        || !hash_equals(API_TOKEN, $matches[1])
+    ) {
+        http_response_code(401);
+        header('Content-Type: application/json; charset=utf-8');
+
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'No autorizado. Token inválido o ausente.',
+            'data' => null
+        ]);
+
+        exit;
+    }
 }

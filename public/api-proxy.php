@@ -1,9 +1,18 @@
-
 <?php
 
 header('Content-Type: application/json; charset=utf-8');
 
 require_once dirname(__DIR__) . '/config.php';
+
+if (API_BASE_URL === '' || API_TOKEN === '') {
+    http_response_code(500);
+
+    echo json_encode([
+        'error' => 'La configuración de la API está incompleta.'
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
 
 $accion = $_GET['accion'] ?? '';
 
