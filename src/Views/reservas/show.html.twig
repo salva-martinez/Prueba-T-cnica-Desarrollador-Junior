@@ -44,23 +44,39 @@
             {% endfor %}
         </div>
 
-        {% if reserva.estado != 'cancelada' %}
+    {% if reserva.estado == 'pendiente' %}
+        <button
+            type="button"
+            id="btnConfirmarReserva"
+            data-id="{{ reserva.id }}"
+            class="btn-confirmar"
+        >
+            Confirmar reserva
+        </button>
+    {% elseif reserva.estado == 'confirmada' %}
+        <p>Esta reserva ya está confirmada.</p>
+    {% endif %}
+
+    {% if reserva.estado != 'cancelada' %}
         <button
             type="button"
             id="btnCancelarReserva"
             data-id="{{ reserva.id }}"
-            class="btn-cancelar">
+            class="btn-cancelar"
+        >
             Cancelar reserva
         </button>
     {% else %}
         <p>Esta reserva ya está cancelada.</p>
     {% endif %}
 
+    <p id="mensajeConfirmacion" role="status" aria-live="polite"></p>
     <p id="mensajeCancelacion" role="status" aria-live="polite"></p>
 
     <p><a href="/">← Volver al listado</a></p>
 {% endblock %}
 
 {% block scripts %}
+    <script src="/js/confirmarReserva.js" defer></script>
     <script src="/js/cancelarReserva.js" defer></script>
 {% endblock %}

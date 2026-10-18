@@ -21,11 +21,11 @@ if ($accion === 'listar') {
 
     $url = rtrim(API_BASE_URL, '/') . '/postReserva.php';
     $metodo = 'POST';
-} elseif ($accion === 'cancelar') {
+} elseif ($accion === 'cancelar' || $accion === 'confirmar') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         http_response_code(405);
         echo json_encode([
-            'error' => 'Para cancelar una reserva debes utilizar POST.'
+            'error' => 'Para cambiar el estado de una reserva debes utilizar POST.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }

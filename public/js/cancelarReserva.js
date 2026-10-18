@@ -3,7 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const boton = document.querySelector("#btnCancelarReserva");
     const mensaje = document.querySelector("#mensajeCancelacion");
 
-    // Si la reserva ya está cancelada, el botón no existe.
     if (!boton || !mensaje) {
         return;
     }
@@ -11,7 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
     boton.addEventListener("click", async () => {
         const id = boton.dataset.id;
 
-        // Pedir confirmación antes de cancelar.
         const confirmado = confirm(
             `¿Seguro que quieres cancelar la reserva ${id}?`
         );
@@ -53,7 +51,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 resultado.mensaje ||
                 "Reserva cancelada correctamente.";
 
-            // Actualizar el estado visible.
             const parrafos = document.querySelectorAll("p");
 
             parrafos.forEach((parrafo) => {
@@ -63,10 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            // Quitar el botón para evitar una segunda cancelación.
             boton.remove();
 
-            // Recargar el detalle para mostrar el evento registrado.
             setTimeout(() => {
                 window.location.reload();
             }, 1200);

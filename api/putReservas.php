@@ -63,8 +63,10 @@ if (
         // Verificar el estado guardado en la base de datos.
         $reservaActualizada = ReservaDAO::select($id);
 
-        if (!$reservaActualizada ||
-            $reservaActualizada->getEstado() !== 'cancelada') {
+        if (
+            !$reservaActualizada ||
+            $reservaActualizada->getEstado() !== 'cancelada'
+        ) {
             http_response_code(500);
             echo json_encode([
                 'status' => 'error',
@@ -80,12 +82,89 @@ if (
             'estado' => 'cancelada'
         ], JSON_UNESCAPED_UNICODE);
         exit;
-
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
             'status' => 'error',
             'error' => 'Error al cancelar la reserva.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+// Comprobar si la petición es una confirmación.
+if (
+    is_array($input)
+    && isset($input['accion'])
+    && $input['accion'] === 'confirmar'
+) {
+    $id = filter_var(
+        $input['id'] ?? null,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1]]
+    );
+
+    if ($id === false) {
+        http_response_code(400);
+        echo json_encode([
+            'status' => 'error',
+            'error' => 'El ID de la reserva no es válido.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    try {
+        $reserva = ReservaDAO::select($id);
+
+        if (!$reserva) {
+            http_response_code(404);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'Reserva no encontrada.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // Solo se pueden confirmar reservas pendientes.
+        if ($reserva->getEstado() !== 'pendiente') {
+            http_response_code(409);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'Solo se pueden confirmar reservas pendientes.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        $reserva->setEstado('confirmada');
+        ReservaDAO::update($reserva);
+
+        // Comprobar que el cambio se ha guardado.
+        $reservaActualizada = ReservaDAO::select($id);
+
+        if (
+            !$reservaActualizada ||
+            $reservaActualizada->getEstado() !== 'confirmada'
+        ) {
+            http_response_code(500);
+            echo json_encode([
+                'status' => 'error',
+                'error' => 'No se pudo confirmar la reserva.'
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        echo json_encode([
+            'status' => 'success',
+            'mensaje' => 'Reserva confirmada correctamente.',
+            'id' => $id,
+            'estado' => 'confirmada'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'status' => 'error',
+            'error' => 'Error al confirmar la reserva.'
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
