@@ -26,7 +26,6 @@ foreach ($lineas as $linea) {
         $nombre = trim($partes[0]);
         $valor = trim($partes[1]);
 
-        // Quitar comillas si existen.
         $valor = trim($valor, "\"'");
 
         $configuracion[$nombre] = $valor;
@@ -36,7 +35,6 @@ foreach ($lineas as $linea) {
 define('API_BASE_URL', $configuracion['API_BASE_URL'] ?? '');
 define('API_TOKEN', $configuracion['API_TOKEN'] ?? '');
 
-// Comprobar que las dos variables tienen valor.
 if (API_BASE_URL === '' || API_TOKEN === '') {
     throw new RuntimeException('Falta configurar API_BASE_URL o API_TOKEN en .env');
 }

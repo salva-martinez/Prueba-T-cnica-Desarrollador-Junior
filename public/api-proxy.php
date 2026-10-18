@@ -1,13 +1,10 @@
 
 <?php
 
-// Responder siempre con JSON.
 header('Content-Type: application/json; charset=utf-8');
 
-// Cargar la configuración desde la raíz del proyecto.
 require_once dirname(__DIR__) . '/config.php';
 
-// Por ahora, solo permitimos consultar las reservas.
 $accion = $_GET['accion'] ?? '';
 
 if ($accion !== 'listar') {
@@ -18,10 +15,8 @@ if ($accion !== 'listar') {
     exit;
 }
 
-// Construir la URL del archivo permitido.
 $url = rtrim(API_BASE_URL, '/') . '/getReservas.php';
 
-// Preparar la petición HTTP.
 $curl = curl_init($url);
 
 curl_setopt_array($curl, [
@@ -33,11 +28,9 @@ curl_setopt_array($curl, [
     CURLOPT_TIMEOUT => 15
 ]);
 
-// Ejecutar la petición.
 $respuesta = curl_exec($curl);
 $codigoHTTP = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
-// Comprobar errores de conexión y mostrar el motivo real.
 if ($respuesta === false) {
     $errorCurl = curl_error($curl);
     $numeroError = curl_errno($curl);
@@ -55,6 +48,5 @@ if ($respuesta === false) {
     exit;
 }
 
-// Devolver el estado HTTP de la API.
 http_response_code($codigoHTTP);
 echo $respuesta;

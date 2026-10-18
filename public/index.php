@@ -29,7 +29,7 @@ if ($method !== 'GET') {
 if (isset($_GET['id']) && !empty($_GET['id'])) {
     $id = (int) $_GET['id'];
 }
-// Si no viene por GET, intentamos capturarlo por ruta limpia (/reservas/1)
+
 elseif (preg_match('#^/reservas/([0-9]+)$#', $path, $matches)) {
     $id = (int) $matches[1];
 } else {
@@ -56,6 +56,12 @@ if ($id !== null) {
     ]);
     exit;
 }
+
+if ($path === '/reservas/nueva') {
+    echo $twig->render('reservas/new.html.twig');
+    exit;
+}
+
 
 if ($path === '/' || $path === '/reservas') {
     $estado = $_GET['estado'] ?? null;

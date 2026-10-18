@@ -28,7 +28,6 @@ if ($idInsertado > 0) {
         echo "Encontrado -> Huésped: " . $reservaUnica->getNombreHuesped() . " | Alojamiento: " . $reservaUnica->getNombreAlojamiento() . " | Estado: " . $reservaUnica->getEstado() . "\n\n";
 
         echo "=== 3. PROBANDO UPDATE (Cambio de estado a 'confirmada' - Debe registrar evento) ===\n";
-        // Modificamos el estado y el importe
         $reservaUnica->setEstado("confirmada");
         $reservaUnica->setImporte(630.00);
         $reservaUnica->setNotas("Leña confirmada y pago recibido");

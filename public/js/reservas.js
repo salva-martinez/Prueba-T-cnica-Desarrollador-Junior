@@ -3,14 +3,12 @@ const formulario = document.querySelector("#filtros-reservas");
 const cuerpo = document.querySelector("#cuerpo-reservas");
 const estadoListado = document.querySelector("#estado-listado");
 
-// Comprobar que existen los elementos de la plantilla Twig.
 if (formulario && cuerpo && estadoListado) {
     formulario.addEventListener("submit", (event) => {
         event.preventDefault();
         cargarReservas();
     });
 
-    // Cargar las reservas al entrar en la página.
     cargarReservas();
 }
 
@@ -18,7 +16,6 @@ async function cargarReservas() {
     estadoListado.textContent = "Cargando reservas...";
 
     try {
-        // El proxy consulta la API y devuelve todas las reservas.
         const respuesta = await fetch(
             "/api-proxy.php?accion=listar"
         );
@@ -35,7 +32,6 @@ async function cargarReservas() {
             throw new Error("La respuesta de la API no contiene una lista válida.");
         }
 
-        // Aplicar los filtros en el navegador.
         const reservasFiltradas = filtrarReservas(resultado.data);
 
         pintarReservas(reservasFiltradas);
@@ -52,17 +48,13 @@ async function cargarReservas() {
 const botonLimpiar = document.querySelector("#limpiarFiltros");
 
 botonLimpiar.addEventListener("click", () => {
-    // Vaciar el campo del nombre.
     document.querySelector("#nombre").value = "";
 
-    // Restablecer el estado.
     document.querySelector("#estado").value = "";
 
-    // Vaciar las fechas.
     document.querySelector("#fecha_inicio").value = "";
     document.querySelector("#fecha_fin").value = "";
 
-    // Volver a cargar todas las reservas sin recargar la página.
     cargarReservas();
 });
 
