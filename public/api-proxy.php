@@ -4,49 +4,82 @@ header('Content-Type: application/json; charset=utf-8');
 
 require_once dirname(__DIR__) . '/config.php';
 
-if (API_BASE_URL === '' || API_TOKEN === '') {
-    http_response_code(500);
+function responderErrorProxy(
+    int $codigo,
+    string $mensaje
+): void {
+    http_response_code($codigo);
 
     echo json_encode([
-        'error' => 'La configuración de la API está incompleta.'
+        'status' => 'error',
+        'message' => $mensaje,
+        'data' => null
     ], JSON_UNESCAPED_UNICODE);
 
     exit;
 }
 
+if (
+    !defined('API_BASE_URL') ||
+    !defined('API_TOKEN') ||
+    API_BASE_URL === '' ||
+    API_TOKEN === ''
+) {
+    error_log('El proxy no tiene configurada la URL o el token de la API.');
+
+    responderErrorProxy(
+        500,
+        'La configuración de la API está incompleta.'
+    );
+}
+
 $accion = $_GET['accion'] ?? '';
+$metodoCliente = $_SERVER['REQUEST_METHOD'];
 
 if ($accion === 'listar') {
+    if ($metodoCliente !== 'GET') {
+        header('Allow: GET');
+
+        responderErrorProxy(
+            405,
+            'Para listar reservas debes utilizar GET.'
+        );
+    }
+
     $url = rtrim(API_BASE_URL, '/') . '/getReservas.php';
-    $metodo = 'GET';
+    $metodoAPI = 'GET';
+
 } elseif ($accion === 'crear') {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo json_encode([
-            'error' => 'Para crear una reserva debes utilizar POST.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    if ($metodoCliente !== 'POST') {
+        header('Allow: POST');
+
+        responderErrorProxy(
+            405,
+            'Para crear una reserva debes utilizar POST.'
+        );
     }
 
     $url = rtrim(API_BASE_URL, '/') . '/postReserva.php';
-    $metodo = 'POST';
+    $metodoAPI = 'POST';
+
 } elseif ($accion === 'cancelar' || $accion === 'confirmar') {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        http_response_code(405);
-        echo json_encode([
-            'error' => 'Para cambiar el estado de una reserva debes utilizar POST.'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
+    if ($metodoCliente !== 'POST') {
+        header('Allow: POST');
+
+        responderErrorProxy(
+            405,
+            'Para cambiar el estado de una reserva debes utilizar POST.'
+        );
     }
 
     $url = rtrim(API_BASE_URL, '/') . '/putReservas.php';
-    $metodo = 'POST';
+    $metodoAPI = 'POST';
+
 } else {
-    http_response_code(400);
-    echo json_encode([
-        'error' => 'La acción solicitada no es válida.'
-    ], JSON_UNESCAPED_UNICODE);
-    exit;
+    responderErrorProxy(
+        400,
+        'La acción solicitada no es válida.'
+    );
 }
 
 $cabeceras = [
@@ -57,10 +90,11 @@ $cabeceras = [
 $opciones = [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_HTTPHEADER => $cabeceras,
+    CURLOPT_CONNECTTIMEOUT => 5,
     CURLOPT_TIMEOUT => 15
 ];
 
-if ($metodo === 'POST') {
+if ($metodoAPI === 'POST') {
     $datos = file_get_contents('php://input');
 
     $cabeceras[] = 'Content-Type: application/json';
@@ -71,6 +105,14 @@ if ($metodo === 'POST') {
 }
 
 $curl = curl_init($url);
+
+if ($curl === false) {
+    responderErrorProxy(
+        500,
+        'No se pudo preparar la petición a la API.'
+    );
+}
+
 curl_setopt_array($curl, $opciones);
 
 $respuesta = curl_exec($curl);
@@ -82,18 +124,36 @@ if ($respuesta === false) {
 
     curl_close($curl);
 
-    http_response_code(502);
+    error_log(
+        "Error cURL en api-proxy.php ($numeroError): $errorCurl"
+    );
 
-    echo json_encode([
-        'error' => 'No se ha podido conectar con la API.',
-        'codigo_curl' => $numeroError,
-        'detalle' => $errorCurl
-    ], JSON_UNESCAPED_UNICODE);
-
-    exit;
+    responderErrorProxy(
+        502,
+        'No se ha podido conectar con la API.'
+    );
 }
 
 curl_close($curl);
+
+try {
+    json_decode(
+        $respuesta,
+        true,
+        512,
+        JSON_THROW_ON_ERROR
+    );
+} catch (JsonException $e) {
+    error_log(
+        'La API devolvió una respuesta que no es JSON válido. HTTP: '
+        . $codigoHTTP
+    );
+
+    responderErrorProxy(
+        502,
+        'La API ha devuelto una respuesta no válida.'
+    );
+}
 
 http_response_code($codigoHTTP);
 echo $respuesta;

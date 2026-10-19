@@ -186,8 +186,7 @@ formulario.addEventListener("submit", async (event) => {
         }
 
         mensajeFormulario.textContent =
-            `${resultado.mensaje || "Reserva creada correctamente."} ` +
-            `ID: ${resultado.id}`;
+            `${resultado.message} ID: ${resultado.data.id}`;
 
         formulario.reset();
 

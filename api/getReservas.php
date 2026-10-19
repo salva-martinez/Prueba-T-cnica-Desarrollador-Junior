@@ -7,6 +7,19 @@ require_once __DIR__ . '/../src/Controllers/ReservaDAO.php';
 
 verificarApiKey();
 
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    header('Allow: GET');
+    http_response_code(405);
+
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Método HTTP no permitido.',
+        'data' => null
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
 try {
     $estado = $_GET['estado'] ?? null;
     $nombre = $_GET['nombre'] ?? null;
