@@ -1,0 +1,64 @@
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_NAME:-Reservas}
+      MYSQL_USER: ${DB_USER:?Define DB_USER en .env.deploy}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env.deploy}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en .env.deploy}
+    volumes:
+      - reservas_db_data:/var/lib/mysql
+      - ./database/reservas.sql:/docker-entrypoint-initdb.d/01-reservas.sql:ro
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - 'mysqladmin ping -h 127.0.0.1 -u root -p"$${MYSQL_ROOT_PASSWORD}" --silent'
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  api:
+    build: .
+    restart: unless-stopped
+    command:
+      - php
+      - -S
+      - 0.0.0.0:8009
+      - -t
+      - /var/www/html/api
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-Reservas}
+      DB_USER: ${DB_USER:?Define DB_USER en .env.deploy}
+      DB_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env.deploy}
+      API_TOKEN: ${API_TOKEN:?Define API_TOKEN en .env.deploy}
+
+  web:
+    build: .
+    restart: unless-stopped
+    command:
+      - php
+      - -S
+      - 0.0.0.0:8080
+      - -t
+      - /var/www/html/public
+      - /var/www/html/public/router.php
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME:-Reservas}
+      DB_USER: ${DB_USER:?Define DB_USER en .env.deploy}
+      DB_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD en .env.deploy}
+      API_BASE_URL: http://api:8009
+      API_TOKEN: ${API_TOKEN:?Define API_TOKEN en .env.deploy}
+    depends_on:
+      db:
+        condition: service_healthy
+      api:
+        condition: service_started
+    ports:
+      - "127.0.0.1:18080:8080"
+
+volumes:
+  reservas_db_data:

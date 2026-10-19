@@ -205,7 +205,7 @@ formulario.addEventListener("submit", async (event) => {
         cancelarTemporizador();
 
         setTimeout(() => {
-            window.location.href = "/public/index.php";
+            window.location.href = "/";
         }, 2000);
 
     } catch (error) {
