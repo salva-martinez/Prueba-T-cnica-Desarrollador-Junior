@@ -143,6 +143,7 @@ formulario.addEventListener("submit", async (event) => {
     mensajeFormulario.textContent = "Guardando reserva...";
 
     try {
+
         const respuesta = await fetch("/api-proxy.php?accion=crear", {
             method: "POST",
             headers: {
@@ -152,16 +153,26 @@ formulario.addEventListener("submit", async (event) => {
             body: JSON.stringify(datos)
         });
 
-        const resultado = await respuesta.json();
+        let resultado;
 
-        if (!respuesta.ok) {
-            if (Array.isArray(resultado.mensajes)) {
-                resultado.mensajes.forEach((mensaje) => {
+        try {
+            resultado = await respuesta.json();
+        } catch {
+            throw new Error("El servidor no ha devuelto una respuesta JSON válida.");
+        }
+
+        if (!respuesta.ok || resultado.status !== "success") {
+            const erroresServidor = Array.isArray(resultado.errors)
+                ? resultado.errors
+                : [];
+
+            if (erroresServidor.length > 0) {
+                erroresServidor.forEach((mensaje) => {
                     const texto = mensaje.toLowerCase();
 
                     if (texto.includes("nombre del huésped")) {
                         mostrarError("nombre_huesped", mensaje);
-                    } else if (texto.includes("correo")) {
+                    } else if (texto.includes("correo electrónico")) {
                         mostrarError("email_huesped", mensaje);
                     } else if (texto.includes("alojamiento")) {
                         mostrarError("nombre_alojamiento", mensaje);
@@ -178,12 +189,13 @@ formulario.addEventListener("submit", async (event) => {
                 });
             } else {
                 mensajeFormulario.textContent =
-                    resultado.error || "No se pudo crear la reserva.";
+                    resultado.message || "No se pudo crear la reserva.";
             }
 
             programarLimpiezaMensajes(5);
             return;
         }
+
 
         mensajeFormulario.textContent =
             `${resultado.message} ID: ${resultado.data.id}`;
@@ -198,7 +210,7 @@ formulario.addEventListener("submit", async (event) => {
 
     } catch (error) {
         mensajeFormulario.textContent =
-            "No se pudo conectar con el servidor. Inténtalo de nuevo.";
+            "No se pudo completar la petición. Comprueba la conexión e inténtalo de nuevo.";
         console.error(error);
     } finally {
         boton.disabled = false;

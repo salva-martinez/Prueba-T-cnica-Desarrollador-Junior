@@ -36,11 +36,24 @@ async function cargarReservas() {
 
     try {
         const respuesta = await fetch("/api-proxy.php?accion=listar");
-        const resultado = await respuesta.json();
+
+        let resultado;
+
+        try {
+            resultado = await respuesta.json();
+        } catch {
+            throw new Error("El servidor no ha devuelto una respuesta JSON válida.");
+        }
 
         if (!respuesta.ok) {
             throw new Error(
-                resultado.error || `Error HTTP ${respuesta.status}`
+                resultado.message || `Error HTTP ${respuesta.status}`
+            );
+        }
+
+        if (resultado.status !== "success") {
+            throw new Error(
+                resultado.message || "La API ha devuelto un error."
             );
         }
 
@@ -66,6 +79,9 @@ async function cargarReservas() {
             `${reservasActuales.length} reservas encontradas.`;
 
     } catch (error) {
+        reservasActuales = [];
+        paginaActual = 1;
+
         estadoListado.textContent =
             `No se pudieron cargar las reservas: ${error.message}`;
 
@@ -147,9 +163,26 @@ function pintarReservas() {
             `${reserva.importe ?? ""} €`
         ];
 
-        for (const valor of valores) {
+        for (const [indice, valor] of valores.entries()) {
             const celda = document.createElement("td");
-            celda.textContent = valor ?? "";
+
+            if (indice === 5) {
+                const etiqueta = document.createElement("span");
+                const estado = String(valor ?? "").toLowerCase();
+
+                etiqueta.classList.add(
+                    "estado-etiqueta",
+                    `estado-${estado}`
+                );
+
+                etiqueta.textContent =
+                    estado.charAt(0).toUpperCase() + estado.slice(1);
+
+                celda.append(etiqueta);
+            } else {
+                celda.textContent = valor ?? "";
+            }
+
             fila.append(celda);
         }
 
@@ -157,7 +190,7 @@ function pintarReservas() {
         const enlace = document.createElement("a");
 
         enlace.href =
-            `/public/index.php?id=${encodeURIComponent(reserva.id)}`;
+            `/reservas/${encodeURIComponent(reserva.id)}`;
         enlace.textContent = "Ver detalle";
 
         acciones.append(enlace);
