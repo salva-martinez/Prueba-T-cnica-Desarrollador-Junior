@@ -17,6 +17,13 @@
             {{ reserva.nombreHuesped }}
         </p>
 
+        {% if reserva.notas %}
+            <p>
+                <strong>Notas:</strong>
+                {{ reserva.notas }}
+            </p>
+        {% endif %}
+
         <p>
             <strong>Alojamiento:</strong>
             {{ reserva.nombreAlojamiento }}
@@ -34,7 +41,7 @@
 
         <p>
             <strong>Estado:</strong>
-            <span class="estado-detalle estado-detalle-{{ reserva.estado|lower }}">
+            <span id="estadoReserva" class="estado-detalle estado-detalle-{{ reserva.estado|lower }}">
                 {{ reserva.estado|capitalize }}
             </span>
         </p>

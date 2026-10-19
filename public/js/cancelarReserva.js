@@ -37,9 +37,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             );
 
-            const resultado = await respuesta.json();
+            let resultado;
 
-            if (!respuesta.ok) {
+            try {
+                resultado = await respuesta.json();
+            } catch {
+                throw new Error(
+                    "El servidor no ha devuelto una respuesta JSON válida."
+                );
+            }
+
+            if (!respuesta.ok || resultado.status !== "success") {
                 throw new Error(
                     resultado.error ||
                     resultado.mensaje ||
@@ -51,14 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 resultado.mensaje ||
                 "Reserva cancelada correctamente.";
 
-            const parrafos = document.querySelectorAll("p");
+            const estadoReserva = document.querySelector("#estadoReserva");
 
-            parrafos.forEach((parrafo) => {
-                if (parrafo.textContent.trim().startsWith("Estado:")) {
-                    parrafo.innerHTML =
-                        "<strong>Estado:</strong> cancelada";
-                }
-            });
+            if (estadoReserva) {
+                estadoReserva.textContent = "Cancelada";
+                estadoReserva.className =
+                    "estado-detalle estado-detalle-cancelada";
+            }
 
             boton.remove();
 

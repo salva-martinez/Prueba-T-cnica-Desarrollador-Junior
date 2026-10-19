@@ -141,6 +141,7 @@ formulario.addEventListener("submit", async (event) => {
     const boton = formulario.querySelector('button[type="submit"]');
     boton.disabled = true;
     mensajeFormulario.textContent = "Guardando reserva...";
+    let reservaCreada = false;
 
     try {
 
@@ -177,8 +178,7 @@ formulario.addEventListener("submit", async (event) => {
                     } else if (texto.includes("alojamiento")) {
                         mostrarError("nombre_alojamiento", mensaje);
                     } else if (texto.includes("fecha")) {
-                        mostrarError("fecha_entrada", mensaje);
-                        mostrarError("fecha_salida", mensaje);
+                        mensajeFormulario.textContent += `${mensaje} `;
                     } else if (texto.includes("importe")) {
                         mostrarError("importe", mensaje);
                     } else if (texto.includes("nota")) {
@@ -196,7 +196,7 @@ formulario.addEventListener("submit", async (event) => {
             return;
         }
 
-
+        reservaCreada = true;
         mensajeFormulario.textContent =
             `${resultado.message} ID: ${resultado.data.id}`;
 
@@ -205,7 +205,7 @@ formulario.addEventListener("submit", async (event) => {
         cancelarTemporizador();
 
         setTimeout(() => {
-            window.location.href = "/";
+            window.location.href = "/public/index.php";
         }, 2000);
 
     } catch (error) {
@@ -213,6 +213,8 @@ formulario.addEventListener("submit", async (event) => {
             "No se pudo completar la petición. Comprueba la conexión e inténtalo de nuevo.";
         console.error(error);
     } finally {
-        boton.disabled = false;
+        if (!reservaCreada) {
+            boton.disabled = false;
+        }
     }
 });
