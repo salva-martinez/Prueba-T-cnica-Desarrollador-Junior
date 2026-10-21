@@ -22,6 +22,10 @@ services:
   api:
     build: .
     restart: unless-stopped
+    # Frontera de disponibilidad para PHP: el aviso de php.net sobre los CVE de
+    # octubre de 2026 pide un límite de contenedor (cgroup) que actúe de barrier
+    # de memoria, en vez de un límite finito dentro de PHP.
+    mem_limit: 256m
     command:
       - php
       - -S
@@ -38,6 +42,7 @@ services:
   web:
     build: .
     restart: unless-stopped
+    mem_limit: 256m
     command:
       - php
       - -S
