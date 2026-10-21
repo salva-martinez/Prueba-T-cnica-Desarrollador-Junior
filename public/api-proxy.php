@@ -122,8 +122,6 @@ if ($respuesta === false) {
     $errorCurl = curl_error($curl);
     $numeroError = curl_errno($curl);
 
-    curl_close($curl);
-
     error_log(
         "Error cURL en api-proxy.php ($numeroError): $errorCurl"
     );
@@ -133,8 +131,6 @@ if ($respuesta === false) {
         'No se ha podido conectar con la API.'
     );
 }
-
-curl_close($curl);
 
 try {
     json_decode(
