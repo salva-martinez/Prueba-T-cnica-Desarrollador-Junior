@@ -224,7 +224,7 @@ Aunque la aplicación cubre las operaciones principales, hay varias mejoras que 
 
 - **Impedir importes iguales a cero:** actualmente el importe puede admitir el valor `0`. Añadiría una validación en el servidor para exigir que sea estrictamente mayor que cero y adaptaría también el formulario.
 - Revisar que los límites de longitud de los campos coincidan entre formulario, validador y base de datos.
-- Comprobar que las fechas sean válidas y que la fecha de salida sea posterior a la de entrada en todos los puntos de entrada.
+- Comprobar que las fechas sean válidas y que no se pueda reservar en fechas posteriores a la actual.
 - Centralizar las reglas que determinan qué cambios de estado están permitidos.
 - Valorar la prevención de reservas con fechas solapadas para un mismo alojamiento, si así lo requieren las reglas del negocio.
 
